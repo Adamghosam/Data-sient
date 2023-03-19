@@ -6,19 +6,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import datetime
+
 
 
 # memanggil dataset
 dataset = pd.read_csv('Data.csv')
-# dataset['Month'] = dataset['Date'].apply(lambda x:datetime.datetime.strptime(x, '%m/%d/%Y').strftime('%Y-%m'))
 
-# cov = dataset[dataset['Location'] != 'Indonesia']
 
-x = dataset.iloc[:, :-1].values
-y = dataset.iloc[:, -1].values
+
+x = dataset.iloc[:, :28].values
+y = dataset.iloc[:, 28].values
+
+from sklearn.impute import SimpleImputer
+imputer = SimpleImputer(missing_values=np.nan,strategy='mean')
+imputer.fit(x[:, 1:28])
+x[:, 1:28] = imputer.transform(x[:, 1:28])
+
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+ct =ColumnTransformer(transformer=[('encoder',OneHotEncoder(),[0])],remainder='passthrough')
+x = np.array(ct.fit_transform(x))
+
+
+from sklearn.preprocessing import LabelEncoder
+le =LabelEncoder()
+y = le.fit_transform(y)
 
 print(x)
 print(y)
-
-
